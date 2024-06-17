@@ -1,0 +1,16 @@
+# Load libraries
+library(PerformanceAnalytics)
+library(quantmod)
+library(riskMetrics)
+# Get stock data for a single stock
+getSymbols("AAPL", src = "yahoo", from = "2020-01-01", to = "2023-12-31")
+prices <- Ad(AAPL)
+# Calculate daily returns
+returns <- dailyReturn(prices)
+
+# Calculate VaR at 95% confidence level
+VaR_95 <- VaR(returns, p = 0.95, method = "historical")
+print(VaR_95)
+# Calculate CVaR at 95% confidence level
+CVaR_95 <- ES(returns, p = 0.95, method = "historical")
+print(CVaR_95)
