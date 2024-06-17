@@ -1,0 +1,28 @@
+# Load libraries
+library(PerformanceAnalytics)
+library(quantmod)
+library(xts)
+# Get stock data for multiple stocks
+symbols <- c("AAPL", "MSFT", "GOOG", "AMZN")
+getSymbols(symbols, src = "yahoo", from = "2020-01-01", to = "2023-12-31")
+
+# Combine adjusted closing prices into one data frame
+prices <- do.call(merge, lapply(symbols, function(x) Ad(get(x))))
+# Calculate daily returns
+returns <- na.omit(Return.calculate(prices))
+colnames(returns) <- symbols
+head(returns)
+# Plot cumulative returns
+chart.CumReturns(returns, legend.loc = "topright", main = "Cumulative Returns")
+# Define portfolio specification
+port_spec <- portfolio.spec(assets = colnames(returns))
+port_spec <- add.constraint(port_spec, type = "full_investment")
+port_spec <- add.constraint(port_spec, type = "long_only")
+
+# Add objectives
+port_spec <- add.objective(port_spec, type = "return", name = "mean")
+port_spec <- add.objective(port_spec, type = "risk", name = "StdDev")
+
+# Optimize portfolio
+opt_port <- optimize.portfolio(returns, port_spec, optimize_method = "ROI")
+print(opt_port)
