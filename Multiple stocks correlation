@@ -1,0 +1,16 @@
+# Load libraries
+library(quantmod)
+library(corrplot)
+# Get stock data for multiple stocks
+symbols <- c("AAPL", "MSFT", "GOOG", "AMZN")
+getSymbols(symbols, src = "yahoo", from = "2020-01-01", to = "2023-12-31")
+
+# Combine adjusted closing prices into one data frame
+prices <- do.call(merge, lapply(symbols, function(x) Ad(get(x))))
+returns <- na.omit(Return.calculate(prices))
+colnames(returns) <- symbols
+# Calculate correlation matrix
+cor_matrix <- cor(returns)
+
+# Plot correlation matrix
+corrplot(cor_matrix, method = "circle")
